@@ -2,15 +2,12 @@ from typing import List
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from passlib.context import CryptContext
-from models.user_model import User
+import bcrypt
+from models.user_model import User, RoleEnum
 from schemas.user_schema import UserCreate, UserResponse
 from core.deps import get_session
 
 router = APIRouter()
-
-# Configuração do Hash (bcrypt)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post('/', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_session)):
@@ -21,14 +18,16 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_session))
     if existing_user:
         raise HTTPException(detail="Email já cadastrado", status_code=status.HTTP_400_BAD_REQUEST)
     
-    # HASH DA SENHA AQUI (Requisito do PDF)
-    hashed_password = pwd_context.hash(user.password)
+    # HASH DA SENHA COM BCRYPT PURO (Requisito do PDF)
+    password_bytes = user.password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password_bytes, salt).decode('utf-8')
     
     new_user = User(
         name=user.name,
         email=user.email,
-        password=hashed_password,  # Salva o hash, não a senha pura
-        role=user.role
+        password=hashed_password,
+        role=RoleEnum(user.role)  # Conversão segura para o Enum do model
     )
     db.add(new_user)
     await db.commit()
