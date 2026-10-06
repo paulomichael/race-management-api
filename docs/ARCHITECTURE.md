@@ -112,3 +112,34 @@ Acesse no navegador:
 - **ReDoc**: `http://localhost:8000/redoc` (Documentação estática e limpa).
 
 ---
+
+## 7. Integração Frontend (Vue.js)
+O projeto evoluiu para uma arquitetura Fullstack, onde o frontend é responsável pela interface do usuário e se comunica com o backend via HTTP.
+
+- **Framework**: Vue.js 3 (Composition/Options API) com Vite como build tool.
+- **Comunicação**: Biblioteca `axios` para realizar requisições assíncronas à API.
+- **Componentização**: A lógica de exibição é encapsulada em componentes reutilizáveis (ex: `RacesList.vue`), que gerenciam seu próprio estado (`data`), ciclo de vida (`created`) e métodos (`fetchRaces`).
+- **CORS (Cross-Origin Resource Sharing)**: Configurado no `main.py` do FastAPI para autorizar explicitamente a origem do Vite (`http://localhost:5173`), permitindo que o navegador aceite as respostas da API sem bloqueios de segurança.
+
+## 8. Estrutura Completa do Projeto (Fullstack)
+
+```text
+.
+├── api/v1/
+│   ├── api.py                 # Router principal que agrega os endpoints
+│   └── endpoints/             # Rotas CRUD (user.py, race.py, registration.py, result.py)
+├── core/
+│   ├── configs.py             # Configurações (DB_URL, DBBaseModel)
+│   └── deps.py                # Injeção de dependência (get_session)
+├── models/                    # Modelos SQLAlchemy 2.0 (Mapeamento do Banco)
+├── schemas/                   # Modelos Pydantic V2 (Validação JSON)
+├── frontend/                  # Projeto Vue.js (Vite + Axios)
+│   ├── src/
+│   │   ├── components/        # Componentes reutilizáveis (ex: RacesList.vue)
+│   │   ├── App.vue            # Componente raiz da aplicação
+│   │   └── main.js            # Ponto de entrada do Vue
+│   └── package.json           # Dependências do Node.js
+├── criar_tabelas.py           # Script para gerar o schema no PostgreSQL
+├── main.py                    # Ponto de entrada da aplicação FastAPI (com CORS)
+├── requirements.txt           # Dependências Python
+└── .env                       # Variáveis de ambiente (não versionado)

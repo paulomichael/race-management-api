@@ -1,6 +1,8 @@
-# API de Gerenciamento de Corridas de Rua
+# API de Gerenciamento de Corridas de Rua (Fullstack)
 
-Uma API RESTful moderna, assíncrona e robusta para gerenciar corridas de rua, construída com **FastAPI** e **SQLAlchemy 2.0**. Este projeto foi desenvolvido como uma evolução prática de um material acadêmico, corrigindo inconsistências e aplicando as melhores práticas atuais de desenvolvimento Python.
+Uma aplicação fullstack moderna, assíncrona e robusta para gerenciar corridas de rua. O backend é construído com **FastAPI** e **SQLAlchemy 2.0**, enquanto o frontend utiliza **Vue.js 3** e **Vite**, comunicando-se de forma segura e eficiente.
+
+Este projeto foi desenvolvido como uma evolução prática de um material acadêmico, aplicando as melhores práticas atuais de desenvolvimento de software, segurança e arquitetura limpa.
 
 ## Funcionalidades
 
@@ -8,43 +10,48 @@ Uma API RESTful moderna, assíncrona e robusta para gerenciar corridas de rua, c
 - **Corridas (Races)**: CRUD completo com validação de dados e relacionamento com organizadores.
 - **Inscrições (Registrations)**: Registro de corredores em corridas com controle de status.
 - **Resultados**: Registro de posições e tempos finais de conclusão.
+- **Interface Web**: Dashboard reativo em Vue.js que consome a API em tempo real.
 - **Segurança**: Senhas criptografadas, validação rigorosa de schemas (Pydantic V2) e proteção contra injeção de SQL via ORM.
 
 ## Tecnologias Utilizadas
 
+**Backend:**
 - **Python 3.10+** (Gerenciado via `pyenv`)
 - **FastAPI**: Framework web moderno e de alta performance
-- **SQLAlchemy 2.0**: ORM assíncrono (`asyncpg`)
-- **PostgreSQL**: Banco de dados relacional (via Docker)
+- **SQLAlchemy 2.0**: ORM assíncrono (`asyncpg`) com sintaxe type-safe (`Mapped`)
+- **PostgreSQL 16**: Banco de dados relacional (via Docker)
 - **Pydantic V2**: Validação e serialização de dados
 - **bcrypt**: Hashing seguro de senhas
 - **Uvicorn**: Servidor ASGI
 
+**Frontend:**
+- **Vue.js 3**: Framework JavaScript progressivo e reativo
+- **Vite**: Build tool ultrarrápida para desenvolvimento
+- **Axios**: Cliente HTTP para comunicação com a API
+
 ## Pré-requisitos
 
 - Python 3.10 ou superior (recomendado: `pyenv`)
+- Node.js 20+ (recomendado: usar `nvm` para gerenciar versões)
 - Docker e Docker Compose
 - Git
 
 ## Instalação e Configuração
 
-### 1. Clonar o repositório e entrar na pasta
+### 1. Clonar o repositório
 ```bash
 git clone <url-do-seu-repositorio>
-cd uninter-apis-corrida
+cd race-management-api # ou o nome que você escolheu
 ```
 
 ### 2. Configurar o ambiente Python
 ```bash
-# Definir a versão do Python (ex: 3.10.19)
 pyenv local 3.10.19
-
-# Criar e ativar o ambiente virtual
 python -m venv .venv
 source .venv/bin/activate  # No Windows: .venv\Scripts\activate
 ```
 
-### 3. Instalar dependências
+### 3. Instalar dependências do Backend
 ```bash
 pip install -r requirements.txt
 ```
@@ -71,22 +78,37 @@ DB_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/corrida
 python criar_tabelas.py
 ```
 
+### 7. Configurar o Frontend (Vue.js)
+```bash
+cd frontend
+npm install
+cd .. # Volta para a raiz do projeto
+```
+
 ## Executando a Aplicação
 
-Inicie o servidor de desenvolvimento com recarregamento automático:
+Você precisará de **dois terminais** abertos na raiz do projeto:
+
+**Terminal 1: Backend (FastAPI)**
 ```bash
 uvicorn main:app --reload
 ```
+*A API estará disponível em: `http://localhost:8000`*
 
-A API estará disponível em: `http://localhost:8000`
+**Terminal 2: Frontend (Vue.js)**
+```bash
+cd frontend
+npm run dev
+```
+*A interface web estará disponível em: `http://localhost:5173`*
 
 ## Documentação da API
 
-O FastAPI gera documentação automática e interativa. Após iniciar o servidor, acesse:
+O FastAPI gera documentação automática e interativa (Swagger UI). Com o backend rodando, acesse:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-## Exemplos de Uso (cURL)
+## Exemplos de Uso (cURL para Backend)
 
 ### 1. Criar um Usuário (Organizador)
 ```bash
@@ -115,39 +137,40 @@ curl -X POST http://localhost:8000/api/v1/races/ \
   }'
 ```
 
-### 3. Listar todas as Corridas
-```bash
-curl http://localhost:8000/api/v1/races/
-```
-
-## Estrutura do Projeto
+## 📂 Estrutura do Projeto
 
 ```text
 .
-├── api/
-│   └── v1/
-│       ├── api.py                 # Router principal que agrega os endpoints
-│       └── endpoints/             # Rotas CRUD (user.py, race.py, etc.)
+├── api/v1/
+│   ├── api.py                 # Router principal que agrega os endpoints
+│   └── endpoints/             # Rotas CRUD (user.py, race.py, registration.py, result.py)
 ├── core/
-│   ├── configs.py                 # Configurações (DB_URL, DBBaseModel)
-│   └── deps.py                    # Injeção de dependência (get_session)
-├── models/                        # Modelos SQLAlchemy (Mapeamento do Banco)
-├── schemas/                       # Modelos Pydantic (Validação JSON)
-├── criar_tabelas.py               # Script para gerar o schema no PostgreSQL
-├── main.py                        # Ponto de entrada da aplicação FastAPI
-├── requirements.txt               # Dependências do projeto
-└── .env                           # Variáveis de ambiente (não versionado)
+│   ├── configs.py             # Configurações (DB_URL, DBBaseModel)
+│   └── deps.py                # Injeção de dependência (get_session)
+├── models/                    # Modelos SQLAlchemy 2.0 (Mapeamento do Banco)
+├── schemas/                   # Modelos Pydantic V2 (Validação JSON)
+├── frontend/                  # Projeto Vue.js (Vite + Axios)
+│   ├── src/
+│   │   ├── components/        # Componentes reutilizáveis (ex: RacesList.vue)
+│   │   ├── App.vue            # Componente raiz
+│   │   └── main.js            # Ponto de entrada do Vue
+│   └── package.json
+├── criar_tabelas.py           # Script para gerar o schema no PostgreSQL
+├── main.py                    # Ponto de entrada da aplicação FastAPI (com CORS)
+├── requirements.txt           # Dependências Python
+└── .env                       # Variáveis de ambiente (não versionado)
 ```
 
-## Melhorias em relação ao material original
+## Melhorias e Boas Práticas Aplicadas
 
-Este projeto foi intencionalmente refinado para evitar armadilhas comuns:
-1. **SQLAlchemy 2.0**: Uso da sintaxe moderna `Mapped` e `mapped_column` (type-safe), substituindo a sintaxe legada `Column`.
-2. **Correção de Conflitos de Nome**: Resolução do bug de colisão do import `time` usando `from datetime import time as TimeType`.
-3. **Segurança Real**: Substituição da biblioteca `passlib` (que possui bugs de compatibilidade com versões recentes do `bcrypt`) pelo uso direto e nativo do `bcrypt`.
-4. **Injeção de Dependência Correta**: Uso de `db: AsyncSession = Depends(get_session)` em vez de context managers (`async with db as session`) incorretos para objetos já injetados.
-5. **Separação Rigorosa de Schemas**: Implementação de `Base`, `Create` e `Response` para evitar vazamento de dados sensíveis (como senhas) ou injeção de campos indesejados (como `id`).
+Este projeto foi intencionalmente refinado para ir além do básico, garantindo robustez e manutenibilidade:
+
+1. **SQLAlchemy 2.0 Nativo**: Uso da sintaxe moderna `Mapped` e `mapped_column` (type-safe), substituindo a sintaxe legada `Column`.
+2. **Segurança Real**: Substituição de bibliotecas obsoletas pelo uso direto e nativo do `bcrypt` para hash de senhas, atendendo a requisitos de segurança de dados.
+3. **Injeção de Dependência Assíncrona Correta**: Uso de `db: AsyncSession = Depends(get_session)` com `yield`, garantindo o fechamento correto das conexões.
+4. **Separação Rigorosa de Schemas**: Implementação de `Base`, `Create` e `Response` no Pydantic para evitar vazamento de dados sensíveis (como senhas) ou injeção de campos indesejados (como `id`).
+5. **Resolução de Conflitos e CORS**: Ajuste fino de imports (ex: `time as TimeType`) e configuração precisa de middleware CORS no FastAPI, incluindo o uso de barras finais em rotas Axios para evitar redirecionamentos 307 que quebram a comunicação frontend-backend.
 
 ## Autor
 
-Desenvolvido com foco em aprendizado, arquitetura limpa e boas práticas de mercado.
+Desenvolvido com foco em aprendizado contínuo, arquitetura limpa e boas práticas de mercado.

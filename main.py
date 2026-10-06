@@ -9,6 +9,7 @@ app.include_router(api_router, prefix='/api/v1')
 
 # Configurações do CORS
 origins = [
+    "http://localhost:5173",  # Porta do Vite (Vue)
     "http://localhost:8081",  # URL do frontend Vue.js
     "http://localhost:8080",  # Alternativa
 ]
